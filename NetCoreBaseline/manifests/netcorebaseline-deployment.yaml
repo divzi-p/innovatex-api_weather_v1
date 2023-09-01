@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: perf-netcorebaseline
+  namespace: default
+  labels:
+    app: perf-netcorebaseline
+spec:
+  selector:
+    matchLabels:
+      app: perf-netcorebaseline
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: perf-netcorebaseline
+    spec:
+      containers:
+      - name: perf-netcorebaseline
+        image: acregdemo001.azurecr.io/netcorebaseline:latest
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 150Mi
+          limits:
+            cpu: 1000m
+            memory: 150Mi
+        ports:
+        - containerPort: 5000
+          name: http
+      imagePullSecrets:
+      - name: aksdemosecret001
+      restartPolicy: Always

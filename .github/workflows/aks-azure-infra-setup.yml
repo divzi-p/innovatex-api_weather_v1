@@ -1,0 +1,47 @@
+# This is a basic workflow to help you get started with Actions
+
+name: AKS -Azure infra setup workflow
+
+# Controls when the action will run. 
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  azure_region: eastasia
+  # All Azure resource names are derived from below deployment name
+  az_deployment_name: demo-aks-001
+  az_resourcegroup_name: rg-demo-aks-001
+  az_acr_name: acregdemo001
+  # Azure AKS general user node setting
+  az_akscluster_name: aks-demo-001
+  az_aksversion_name: 1.23.5
+  az_aksnodepool_count: 2
+  az_aksnodepool_vmsku: Standard_DS2_v2
+  az_aksnodepool_autoscale: false 
+  az_aksnodepool_minCount: 1 
+  az_aksnodepool_maxCount: 2  
+  # test vm configuratiopns
+  az_testresourcegroup_name: rg-demo-test-001
+     
+
+jobs:
+  setup-up-azure-infra:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.azure_credentials }}
+
+      - name: Run bicep infrastucture as code
+        if: success()
+        run: |
+          az deployment sub create -f bicep//main.bicep -l ${{ env.azure_region }} -n ${{ env.az_deployment_name }} --parameters computeResourceGroupName=${{ env.az_resourcegroup_name }} hubResourceGroupName=${{ env.az_testresourcegroup_name }} aksClusterName=${{ env.az_akscluster_name }} aksGeneralNodePoolCount=${{env.az_aksnodepool_count}} aksGeneralNodePoolVmSku=${{env.az_aksnodepool_vmsku}} aksGeneralNodePoolAutoScale=${{env.az_aksnodepool_autoscale}} aksGeneralNodePoolMinCount=${{env.az_aksnodepool_minCount}} aksGeneralNodePoolMaxCount=${{env.az_aksnodepool_maxCount}} acrName=${{env.az_acr_name}}
