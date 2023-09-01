@@ -13,7 +13,7 @@ param computeVnetCidr string = '10.100.0.0/16'
 param aksClusterName string = 'demokube'
 // TODO: Lookup by name instead of using OID
 // param aksClusterAdminGroupName string = '${aksClusterName}-admins'
-param k8sVersion string = '1.27'
+param k8sVersion string = '1.27.1'
 
 param aksSystemNodePoolName string = 'system'
 param aksSystemNodePoolCount int = 3

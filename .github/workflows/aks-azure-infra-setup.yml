@@ -15,7 +15,7 @@ env:
   az_acr_name: acregdemo001
   # Azure AKS general user node setting
   az_akscluster_name: aks-demo-001
-  az_aksversion_name: 1.23.5
+  az_aksversion_name: 1.27.1
   az_aksnodepool_count: 2
   az_aksnodepool_vmsku: Standard_DS2_v2
   az_aksnodepool_autoscale: false 
