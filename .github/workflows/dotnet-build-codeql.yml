@@ -13,7 +13,7 @@ name: "Build-Analyze Code"
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "main" ]
 
 
 jobs:
