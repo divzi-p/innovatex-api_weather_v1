@@ -1,21 +1,21 @@
-FROM mcr.microsoft.com/dotnet/aspnet:3.1 AS base
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS builder
 WORKDIR /app
+
+# caches restore result by copying csproj file separately
+COPY *.csproj .
+RUN dotnet restore
+
+COPY . .
+RUN dotnet publish --output /app/ --configuration Release --no-restore
+RUN sed -n 's:.*<AssemblyName>\(.*\)</AssemblyName>.*:\1:p' *.csproj > __assemblyname
+RUN if [ ! -s __assemblyname ]; then filename=$(ls *.csproj); echo ${filename%.*} > __assemblyname; fi
+
+# Stage 2
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
+WORKDIR /app
+COPY --from=builder /app .
+
+ENV PORT 5000
 EXPOSE 5000
 
-ENV ASPNETCORE_URLS=http://+:5000
-
-FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
-WORKDIR /src
-COPY ["NetCoreBaseline.csproj", "./"]
-RUN dotnet restore "NetCoreBaseline.csproj"
-COPY . .
-WORKDIR "/src/."
-RUN dotnet build "NetCoreBaseline.csproj" -c Release -o /app/build
-
-FROM build AS publish
-RUN dotnet publish "NetCoreBaseline.csproj" -c Release -o /app/publish
-
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "NetCoreBaseline.dll"]
+ENTRYPOINT dotnet $(cat /app/__assemblyname).dll --urls "http://*:5000"
